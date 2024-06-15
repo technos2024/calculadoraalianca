@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Orçamentos de Joias</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .result-group {
+            margin-bottom: 10px;
+        }
+        .result-group span {
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+        .buttons {
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+    <h1>Calculadora de Orçamentos de Joias</h1>
+    <div class="form-group">
+        <label for="peso">Peso da Aliança (g):</label>
+        <input type="number" id="peso" name="peso" step="0.01" oninput="calcularOrcamento()">
+        <div id="error" class="error"></div>
+    </div>
+    <div id="resultado">
+        <div class="result-group">
+            <span>12x: </span><span id="valor12x"></span>
+        </div>
+        <div class="result-group">
+            <span>6x: </span><span id="valor6x"></span>
+        </div>
+        <div class="result-group">
+            <span>Crédito à Vista: </span><span id="valorCredito"></span>
+        </div>
+        <div class="result-group">
+            <span>Débito: </span><span id="valorDebito"></span>
+        </div>
+        <div class="result-group">
+            <span>Pix: </span><span id="valorPix"></span>
+        </div>
+        <div class="result-group">
+            <h2>Parcelas:</h2>
+            <div id="parcelas"></div>
+        </div>
+    </div>
+    <div class="buttons">
+        <button onclick="salvarComoImagem()">Salvar como Imagem</button>
+        <button onclick="imprimirPagina()">Imprimir</button>
+    </div>
+
+    <script>
+        function calcularOrcamento() {
+            const peso = parseFloat(document.getElementById('peso').value);
+            const errorDiv = document.getElementById('error');
+            const parcelasDiv = document.getElementById('parcelas');
+            
+            if (isNaN(peso) || peso <= 0) {
+                errorDiv.textContent = 'Por favor, insira um peso válido e positivo.';
+                document.getElementById('valor12x').textContent = '';
+                document.getElementById('valor6x').textContent = '';
+                document.getElementById('valorCredito').textContent = '';
+                document.getElementById('valorDebito').textContent = '';
+                document.getElementById('valorPix').textContent = '';
+                parcelasDiv.innerHTML = '';
+                return;
+            }
+
+            errorDiv.textContent = '';
+
+            const valor12x = peso * 600;
+            const valor6x = peso * 550;
+            const valorCredito = peso * 530;
+            const valorDebito = peso * 500;
+            const valorPix = peso * 450;
+
+            document.getElementById('valor12x').textContent = `R$ ${valor12x.toFixed(2)}`;
+            document.getElementById('valor6x').textContent = `R$ ${valor6x.toFixed(2)}`;
+            document.getElementById('valorCredito').textContent = `R$ ${valorCredito.toFixed(2)}`;
+            document.getElementById('valorDebito').textContent = `R$ ${valorDebito.toFixed(2)}`;
+            document.getElementById('valorPix').textContent = `R$ ${valorPix.toFixed(2)}`;
+
+            parcelasDiv.innerHTML = '';
+            
+            for (let i = 2; i <= 6; i++) {
+                const parcela = valor6x / i;
+                const parcelaElem = document.createElement('div');
+                parcelaElem.textContent = `${i}x: R$ ${parcela.toFixed(2)}`;
+                parcelasDiv.appendChild(parcelaElem);
+            }
+            for (let i = 7; i <= 12; i++) {
+                const parcela = valor12x / i;
+                const parcelaElem = document.createElement('div');
+                parcelaElem.textContent = `${i}x: R$ ${parcela.toFixed(2)}`;
+                parcelasDiv.appendChild(parcelaElem);
+            }
+        }
+
+        function salvarComoImagem() {
+            const resultado = document.getElementById('resultado');
+            html2canvas(resultado).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'orcamento.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+
+        function imprimirPagina() {
+            window.print();
+        }
+    </script>
+</body>
+</html>
